@@ -132,16 +132,24 @@ CreateThread(function()
         --Commands
         '/txadmin',
         '/txaPing',
-        '/txaKickAll',
         '/txaEvent',
         '/txaReportResources',
         '/txaSetDebugMode',
+        '/txaInitialData',
 
         --Keybinds
-        '/txAdmin:menu:noClipToggle',
         '/txAdmin:menu:openPlayersPage',
-        '/txAdmin:menu:togglePlayerIDs',
+        '/txAdmin:menu:clearArea',
+        '/txAdmin:menu:healMyself',
+        '/txAdmin:menu:tpBack',
+        '/txAdmin:menu:tpToCoords',
         '/txAdmin:menu:tpToWaypoint',
+        '/txAdmin:menu:noClipToggle',
+        '/txAdmin:menu:togglePlayerIDs',
+        '/txAdmin:menu:boostVehicle',
+        '/txAdmin:menu:deleteVehicle',
+        '/txAdmin:menu:fixVehicle',
+        '/txAdmin:menu:spawnVehicle',
 
         --Convars
         '/txAdmin-version',
@@ -157,6 +165,9 @@ CreateThread(function()
         '/txAdmin-hideDefaultDirectMessage',
         '/txAdmin-hideDefaultWarning',
         '/txAdmin-hideDefaultScheduledRestartWarning',
+        '/txAdmin-hideAdminInPunishments',
+        '/txAdmin-hideAdminInMessages',
+        '/txAdmin-serverName',
         '/txAdminServerMode',
 
         --Menu convars

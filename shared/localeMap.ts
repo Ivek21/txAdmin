@@ -22,6 +22,7 @@ import lang_ja from "@locale/ja.json";
 import lang_lt from "@locale/lt.json";
 import lang_lv from "@locale/lv.json";
 import lang_mn from "@locale/mn.json";
+import lang_ne from "@locale/ne.json";
 import lang_nl from "@locale/nl.json";
 import lang_no from "@locale/no.json";
 import lang_pl from "@locale/pl.json";
@@ -32,6 +33,7 @@ import lang_sl from "@locale/sl.json";
 import lang_sv from "@locale/sv.json";
 import lang_th from "@locale/th.json";
 import lang_tr from "@locale/tr.json";
+import lang_uk from "@locale/uk.json";
 import lang_vi from "@locale/vi.json";
 import lang_zh from "@locale/zh.json";
 
@@ -62,6 +64,7 @@ const localeMap: LocaleMapType = {
     lt: lang_lt,
     lv: lang_lv,
     mn: lang_mn,
+    ne: lang_ne,
     nl: lang_nl,
     no: lang_no,
     pl: lang_pl,
@@ -72,6 +75,7 @@ const localeMap: LocaleMapType = {
     sv: lang_sv,
     th: lang_th,
     tr: lang_tr,
+    uk: lang_uk,
     vi: lang_vi,
     zh: lang_zh,
 };

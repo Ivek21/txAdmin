@@ -1,7 +1,12 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { UsersIcon, UserRoundPlusIcon, CalendarPlusIcon } from 'lucide-react';
 import PageCalloutRow, { PageCalloutProps } from '@/components/PageCalloutRow';
-import { PlayerSearchBox, PlayersSearchBoxReturnStateType } from './PlayersSearchBox';
+import {
+    PlayerSearchBox,
+    PlayersSearchBoxReturnStateType,
+    availableFilters,
+    availableSearchTypes,
+} from './PlayersSearchBox';
 import PlayersTable from './PlayersTable';
 import { PlayersStatsResp, PlayersTableFiltersType, PlayersTableSearchType } from '@shared/playerApiTypes';
 import { useBackendApi } from '@/hooks/fetch';
@@ -11,6 +16,72 @@ import { useBackendApi } from '@/hooks/fetch';
 const PlayerSearchBoxMemo = memo(PlayerSearchBox);
 const PlayersTableMemo = memo(PlayersTable);
 const PageCalloutRowMemo = memo(PageCalloutRow);
+
+//Get/Set localStorage search type
+const LOCALSTORAGE_KEY = 'playerSearchRememberType';
+const getStoredSearchType = () => {
+    const stored = localStorage.getItem(LOCALSTORAGE_KEY);
+    if (!stored) return false;
+    if (!availableSearchTypes.some(f => f.value === stored)) return false;
+    return stored;
+}
+const setStoredSearchType = (searchType: string | false) => {
+    if (searchType) {
+        localStorage.setItem(LOCALSTORAGE_KEY, searchType);
+    } else {
+        localStorage.removeItem(LOCALSTORAGE_KEY);
+    }
+}
+
+//Helpers for storing search and filters in URL
+const updateUrlSearchParams = (search: PlayersTableSearchType, filters: PlayersTableFiltersType) => {
+    const newUrl = new URL(window.location.toString());
+    if (search && search.value && search.type) {
+        newUrl.searchParams.set("searchType", search.type);
+        newUrl.searchParams.set("searchQuery", search.value);
+    } else {
+        newUrl.searchParams.delete("searchType");
+        newUrl.searchParams.delete("searchQuery");
+    }
+    if (filters.length) {
+        newUrl.searchParams.set("filters", filters.join(','));
+    } else {
+        newUrl.searchParams.delete("filters");
+    }
+    window.history.replaceState({}, "", newUrl);
+}
+const getInitialState = () => {
+    const params = new URLSearchParams(window.location.search);
+    const validTypes = availableSearchTypes.map(f => f.value) as string[];
+    const searchType = params.get('searchType');
+    const searchQuery = params.get('searchQuery');
+    const validFilters = availableFilters.map(f => f.value) as string[];
+    const searchFilters = params.get('filters')?.split(',').filter(f => validFilters.includes(f));
+
+    let defaultSearchType = availableSearchTypes[0].value as string;
+    let rememberSearchType = false;
+    try {
+        const storedSearchType = getStoredSearchType();
+        if(storedSearchType) {
+            defaultSearchType = storedSearchType;
+            rememberSearchType = true;
+        }
+    } catch (error) {
+        console.error('Failed to get stored search type:', error);
+    }
+
+    return {
+        search: searchQuery && searchType && validTypes.includes(searchType) ? {
+            type: searchType,
+            value: searchQuery,
+        } : {
+            type: defaultSearchType,
+            value: '',
+        },
+        filters: searchFilters ?? [],
+        rememberSearchType,
+    };
+}
 
 
 export default function PlayersPage() {
@@ -32,15 +103,20 @@ export default function PlayersPage() {
     }, []);
 
     //PlayerSearchBox handlers
-    const doSearch = useCallback((search: PlayersTableSearchType, filters: PlayersTableFiltersType) => {
+    const doSearch = useCallback((
+        search: PlayersTableSearchType,
+        filters: PlayersTableFiltersType,
+        rememberSearchType: boolean,
+    ) => {
         setSearchBoxReturn({ search, filters });
+        updateUrlSearchParams(search, filters);
+        try {
+            setStoredSearchType(rememberSearchType ? search.type : false);
+        } catch (error) {
+            console.error('Failed to set stored search type:', error);
+        }
     }, []);
-    const initialState = useMemo(() => {
-        return {
-            search: null,
-            filters: [],
-        } satisfies PlayersSearchBoxReturnStateType;
-    }, []);
+    const initialState = useMemo(getInitialState, []);
 
 
     const calloutRowData = useMemo(() => {
@@ -72,8 +148,7 @@ export default function PlayersPage() {
     }, [calloutData]);
 
     return (<div
-        className='flex flex-col min-w-96 w-full'
-        style={{ height: 'calc(100vh - 3.5rem - 1px - 2rem)' }}
+        className='flex flex-col min-w-96 w-full h-contentvh'
     >
         {/* <div
             //DEBUG component state

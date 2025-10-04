@@ -2,9 +2,34 @@
 --  Truly global
 -- =============================================
 
-function GetConvarBool(cvName)
-  return (GetConvar(cvName, 'false') == 'true')
+function GetConvarBool(cvName, defaultConvarValue)
+  if not cvName then
+    return false
+  elseif defaultConvarValue then
+    return (GetConvar(cvName, 'true') == 'true')
+  else
+    return (GetConvar(cvName, 'false') == 'true')
+  end
 end
+
+-- -- Tests for GetConvarBool
+-- print("==========================")
+-- print('unknown convar')
+-- print(GetConvarBool2('xxx', true)) -- true
+-- print(GetConvarBool2('xxx', false)) -- false
+-- print(GetConvarBool2('xxx')) -- false
+-- print('known convar')
+-- SetConvar('yyy', 'true')
+-- print(GetConvarBool2('yyy', true)) -- true
+-- print(GetConvarBool2('yyy', false)) -- true
+-- print(GetConvarBool2('yyy')) -- true 
+-- print('known convar, but with a false value')
+-- SetConvar('yyy', 'false')
+-- print(GetConvarBool2('yyy', false)) -- false
+-- print(GetConvarBool2('yyy', true)) -- false
+-- print(GetConvarBool2('yyy')) -- false
+-- print("==========================")
+
 
 -- Setting game-specific global vars
 local envName = GetGameName()
@@ -30,15 +55,23 @@ TX_MENU_ENABLED = GetConvarBool('txAdmin-menuEnabled')
 TX_DEBUG_MODE = GetConvarBool('txAdmin-debugMode')
 
 
---- Prints formatted string to console
-function txPrint(...)
-  local args = {...}
+--- Internal helper to format txAdmin console messages
+local function _formatTxString(args)
   local appendedStr = ''
   for _, v in ipairs(args) do
     appendedStr = appendedStr .. ' ' .. (type(v)=="table" and json.encode(v) or tostring(v))
   end
-  local msgTemplate = '^5[txAdmin]^0%s^0'
-  local msg = msgTemplate:format(appendedStr)
+  return appendedStr
+end
+
+--- Prints formatted string to console
+function txPrint(...)
+  local msg = ('^5[txAdmin]^0%s^0'):format(_formatTxString({...}))
+  print(msg)
+end
+
+function txPrintError(...)
+  local msg = ('^5[txAdmin]^1%s^0'):format(_formatTxString({...}))
   print(msg)
 end
 
